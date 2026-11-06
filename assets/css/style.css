@@ -100,6 +100,13 @@ h1, h2, h3, h4, h5 { font-family: "Space Grotesk", "Archivo", sans-serif; }
 }
 .skip:focus { left: 1rem; top: 1rem; }
 
+/* If the script is unavailable, keep the site content accessible. */
+html:not(.js) .intro,
+html:not(.js) .slider,
+html:not(.js) .cursor,
+html:not(.js) .hello,
+html:not(.js) .toggle { display: none; }
+
 /* --------------------------------------------------------------------------
    Intro
    -------------------------------------------------------------------------- */

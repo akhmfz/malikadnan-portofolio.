@@ -1,10 +1,16 @@
 /* Malik Adnan — portfolio interactions (no dependencies) */
 const root = document.documentElement;
+root.classList.add("js");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- Tema ---------- */
 const toggle = document.querySelector(".toggle");
-const savedTheme = localStorage.getItem("theme");
+let savedTheme = null;
+try {
+  savedTheme = localStorage.getItem("theme");
+} catch {
+  // Theme preference is optional when browser storage is blocked.
+}
 root.dataset.theme =
   savedTheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
 toggle.setAttribute("aria-pressed", String(root.dataset.theme === "light"));
@@ -16,7 +22,11 @@ toggle.addEventListener("click", () => {
   const next = root.dataset.theme === "light" ? "dark" : "light";
   root.dataset.theme = next;
   toggle.setAttribute("aria-pressed", String(next === "light"));
-  localStorage.setItem("theme", next);
+  try {
+    localStorage.setItem("theme", next);
+  } catch {
+    // The theme still changes for this visit.
+  }
   syncThemeColor();
 });
 
@@ -137,17 +147,24 @@ updateSpy();
 document.querySelectorAll(".copy").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const text = btn.dataset.copy;
+    let copied = false;
     try {
       await navigator.clipboard.writeText(text);
+      copied = true;
     } catch {
       const field = document.createElement("textarea");
       field.value = text;
       document.body.appendChild(field);
-      field.select();
-      document.execCommand("copy");
-      field.remove();
+      try {
+        field.select();
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      } finally {
+        field.remove();
+      }
     }
-    btn.textContent = "Tersalin";
+    btn.textContent = copied ? "Tersalin" : "Gagal menyalin";
     btn.classList.add("is-done");
     window.setTimeout(() => {
       btn.textContent = "Salin";
